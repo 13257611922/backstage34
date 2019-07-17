@@ -1,33 +1,24 @@
 import Vue from 'vue'
 import App from './App.vue'
 
-// 导入路由
-import VueRouter from 'vue-router'
+// 导入css
+import './assets/base.css'
 
-// 导入组件
-import login from './components/login.vue'
-import index from './components/index.vue'
+// 导入饿了么ui
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
 
 Vue.config.productionTip = false
 
 // 设置use
-Vue.use(VueRouter)
+Vue.use(ElementUI)
 
-// 路由规则
-const routes = [{
-    path: '/login',
-    component: login
-  },
-  {
-    path: '/index',
-    component: index
-  }
-]
+// 导入抽取router
+import router from './router/router'
 
-// 路由对象
-const router = new VueRouter({
-  routes
-})
+// 注册面包屑组件
+import mybread from './components/mybread.vue'
+Vue.component("mybread", mybread)
 
 new Vue({
   render: h => h(App),
