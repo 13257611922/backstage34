@@ -121,9 +121,24 @@ export const compileusers = ({
     email,
     mobile
 }) => {
-    return managerAxios.put(`users/${id}`,{
+    return managerAxios.put(`users/${id}`, {
         email,
         mobile
+    })
+}
+
+// 暴露接口 - 角色列表
+export const rolesusers = () => {
+    return managerAxios.get('roles')
+}
+
+// 暴露接口 - 分配用户角色
+export const ridusers = ({
+    id,
+    rid
+}) => {
+    return managerAxios.put(`users/${id}/role`, {
+        rid
     })
 }
 

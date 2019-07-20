@@ -40,7 +40,7 @@
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <!-- 按钮 -->
+          <!-- 编辑按钮 -->
           <el-button
             type="primary"
             icon="el-icon-edit"
@@ -48,6 +48,7 @@
             size="small"
             @click="modificationBtn(scope.row)"
           ></el-button>
+          <!-- 删除按钮 -->
           <el-button
             type="danger"
             icon="el-icon-delete"
@@ -55,7 +56,14 @@
             size="small"
             @click="delusers(scope.row)"
           ></el-button>
-          <el-button type="warning" icon="el-icon-check" plain size="small"></el-button>
+          <!-- 分配按钮 -->
+          <el-button
+            type="warning"
+            icon="el-icon-check"
+            plain
+            size="small"
+            @click="roleBtn(scope.row)"
+          ></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -112,6 +120,27 @@
         <el-button type="primary" @click="saveEdit">确 定</el-button>
       </div>
     </el-dialog>
+
+    <!-- 分配角色 - 对话框 -->
+    <el-dialog title="分配角色" :visible.sync="roleFormVisible">
+      <el-form :model="roleForm">
+        <el-form-item label="当前用户" lable="120px">{{roleForm.userName}}</el-form-item>
+        <el-form-item label="请选择角色" lable="120px">
+          <el-select v-model="roleForm.role" placeholder="请选择活动区域">
+            <el-option
+              v-for="(item,index) in roleList"
+              :label="item.roleName"
+              :value="item.id"
+              :key="index"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="roleFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="disRoles">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -122,13 +151,27 @@ import {
   addusers,
   delusers,
   stateuser,
-  compileusers
+  compileusers,
+  rolesusers,
+  ridusers
 } from "../api/axios";
 
 export default {
   name: "users",
   data() {
     return {
+      // 分配框开关
+      roleFormVisible: false,
+      // 分配角色列表
+      roleList: [],
+      // 分配数据
+      roleForm: {
+        role: "",
+        // 分配用户名字
+        userName: "",
+        // 分配角色id
+        id: ""
+      },
       // table 表格
       tableData: [
         {
@@ -160,7 +203,7 @@ export default {
           { min: 6, max: 12, message: "长度在 5 到 12 个字符", trigger: "blur" }
         ]
       },
-      // 对话框开关
+      // 添加框开关
       disdialog: false,
       // 表单数据
       disform: {
@@ -182,10 +225,47 @@ export default {
     };
   },
   methods: {
+    // 分配用户角色
+    disRoles() {
+      ridusers({
+        id: this.roleForm.id,
+        rid: this.roleForm.role
+      }).then(backData => {
+        // console.log(backData);
+        if (backData.data.meta.status == 200) {
+          // 分配框关闭
+          this.roleFormVisible = false;
+          // 弹话框
+          this.$message({
+            type: "success",
+            message: "角色分配成功!"
+          });
+        }
+      });
+    },
+
+    // 分配角色
+    roleBtn(row) {
+      // console.log(row);
+      // 分配框开启
+      this.roleFormVisible = true;
+
+      this.roleForm.userName = row.username;
+      this.roleForm.role = row.role_name;
+      this.roleForm.id = row.id;
+      // 获取角色列表
+      rolesusers().then(backData => {
+        // console.log(backData);
+        if (backData.data.meta.status == 200) {
+          this.roleList = backData.data.data;
+        }
+      });
+    },
+
     // 保存修改
     saveEdit() {
       compileusers(this.comform).then(backData => {
-        console.log(backData);
+        // console.log(backData);
         if (backData.data.meta.status == 200) {
           this.$message.success("修改成功!!!");
           // 关闭弹框
@@ -290,7 +370,7 @@ export default {
         pagenum: this.pagenum,
         pagesize: this.pagesize
       }).then(backData => {
-        console.log(backData);
+        // console.log(backData);
         this.tableData = backData.data.data.users;
         this.total = backData.data.data.total;
       });
@@ -305,15 +385,14 @@ export default {
     handleSizeChange(size) {
       // 每页容量
       console.log(size);
-      this.pagesize = size
-      this.usersList()
+      this.pagesize = size;
+      this.usersList();
     },
     handleCurrentChange(current) {
       // 当前页码
       console.log(current);
-      this.pagenum = current
-      this.usersList()
-      
+      this.pagenum = current;
+      this.usersList();
     }
   },
 
