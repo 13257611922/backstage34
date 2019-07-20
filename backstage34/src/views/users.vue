@@ -25,7 +25,7 @@
       <el-table-column type="index" width="50"></el-table-column>
       <el-table-column prop="username" label="姓名" width="180"></el-table-column>
       <el-table-column prop="email" label="邮箱" width="250"></el-table-column>
-      <el-table-column prop="create_time" label="电话"></el-table-column>
+      <el-table-column prop="mobile" label="电话"></el-table-column>
       <!-- 自定义列模板 -->
       <el-table-column label="用户状态" width="100">
         <!-- switch 开关 -->
@@ -41,7 +41,13 @@
       <el-table-column label="操作">
         <template slot-scope="scope">
           <!-- 按钮 -->
-          <el-button type="primary" icon="el-icon-edit" plain size="small"></el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-edit"
+            plain
+            size="small"
+            @click="modificationBtn(scope.row)"
+          ></el-button>
           <el-button
             type="danger"
             icon="el-icon-delete"
@@ -58,16 +64,17 @@
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page="currentPage4"
+        :current-page="pagenum"
         :page-sizes="[5, 15, 20, 25]"
-        :page-size="10"
+        :page-size="pagesize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="5"
+        :total="total"
       ></el-pagination>
     </div>
-    <!-- 添加用户-对话框 -->
-    <el-dialog title="添加用户" :visible.sync="disdialog" class="my-dialog">
-      <el-form :model="disform" class="my-from" :rules="disrules">
+
+    <!-- 添加用户 - 对话框 -->
+    <el-dialog title="添加用户" :visible.sync="disdialog">
+      <el-form ref="ruleForm" :model="disform" :rules="disrules">
         <el-form-item label="用户名" label-width="120px" prop="username">
           <el-input v-model="disform.username" autocomplete="off"></el-input>
         </el-form-item>
@@ -83,7 +90,26 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="disdialog = false">取 消</el-button>
-        <el-button type="primary" @click="submitBtn">确 定</el-button>
+        <el-button type="primary" @click="submitBtn('ruleForm')">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 编辑用户 - 对话框 -->
+    <el-dialog title="修改用户" :visible.sync="comdialog">
+      <el-form ref="ruleFrom" :model="comform" :rules="disrules">
+        <el-form-item label="用户名" label-width="120px" prop="username">
+          <el-input v-model="comform.username" disabled autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" label-width="120px">
+          <el-input v-model="comform.email" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="电话" label-width="120px">
+          <el-input v-model="comform.mobile" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="comdialog = false">取 消</el-button>
+        <el-button type="primary" @click="saveEdit">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -91,7 +117,14 @@
 
 <script>
 // 导入 抽取的axios方法
-import { users, addusers, delusers, stateusers } from "../api/axios";
+import {
+  users,
+  addusers,
+  delusers,
+  stateuser,
+  compileusers
+} from "../api/axios";
+
 export default {
   name: "users",
   data() {
@@ -105,16 +138,16 @@ export default {
         }
       ],
 
-      // 分页首页
-      currentPage4: 1,
       // 输入框内容 查询参数
       query: "",
       // 当前页码
       pagenum: 1,
       // 页容量
-      pagesize: 10,
+      pagesize: 5,
       // switch 开关
       value: false,
+      // 总条数
+      total: 0,
 
       // 添加用户 - 对话框
       disrules: {
@@ -135,10 +168,43 @@ export default {
         password: "",
         email: "",
         mobile: ""
+      },
+
+      // 编辑框开关
+      comdialog: false,
+      // 编辑数据
+      comform: {
+        username: "",
+        email: "",
+        mobile: "",
+        id: ""
       }
     };
   },
   methods: {
+    // 保存修改
+    saveEdit() {
+      compileusers(this.comform).then(backData => {
+        console.log(backData);
+        if (backData.data.meta.status == 200) {
+          this.$message.success("修改成功!!!");
+          // 关闭弹框
+          this.comdialog = false;
+          // 重新渲染
+          this.usersList();
+        }
+      });
+    },
+
+    // 编辑用户
+    modificationBtn(row) {
+      // 开启对话框
+      this.comdialog = true;
+      // console.log(row);
+      // 数据渲染
+      this.comform = row;
+    },
+
     //删除用户
     delusers(row) {
       // console.log(row);
@@ -173,20 +239,28 @@ export default {
     },
 
     // 提交表单
-    submitBtn() {
-      // 发送请求
-      addusers(this.disform).then(backData => {
-        console.log(backData);
-        if (backData.data.meta.status == 201) {
-          // 关闭对话框
-          this.disdialog = false;
-          // 弹话框
-          this.$message({
-            message: "添加用户成功!!!",
-            type: "success"
+    submitBtn(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          // 发送请求
+          addusers(this.disform).then(backData => {
+            // console.log(backData);
+            if (backData.data.meta.status == 201) {
+              // 关闭对话框
+              this.disdialog = false;
+              // 弹话框
+              this.$message({
+                message: "添加用户成功!!!",
+                type: "success"
+              });
+              // 重新渲染
+              this.usersList();
+            }
           });
-          // 重新渲染
-          this.usersList();
+        } else {
+          // 弹框
+          this.$message.warning("数据格式不对，请检查");
+          return false;
         }
       });
     },
@@ -199,13 +273,13 @@ export default {
 
     // 开关事件
     switchBtn(row) {
-      console.log(row);
+      // console.log(row);
       stateusers({
-        uld:row.id,
-        type:row.mg_state
-      }).then(backData=>{
-        console.log(backData);
-      })
+        uld: row.id,
+        type: row.mg_state
+      }).then(backData => {
+        // console.log(backData);
+      });
     },
 
     // 封装users请求
@@ -216,8 +290,9 @@ export default {
         pagenum: this.pagenum,
         pagesize: this.pagesize
       }).then(backData => {
-        // console.log(backData);
+        console.log(backData);
         this.tableData = backData.data.data.users;
+        this.total = backData.data.data.total;
       });
     },
 
@@ -227,8 +302,19 @@ export default {
     },
 
     // 分页
-    handleSizeChange() {},
-    handleCurrentChange() {}
+    handleSizeChange(size) {
+      // 每页容量
+      console.log(size);
+      this.pagesize = size
+      this.usersList()
+    },
+    handleCurrentChange(current) {
+      // 当前页码
+      console.log(current);
+      this.pagenum = current
+      this.usersList()
+      
+    }
   },
 
   // 生命周期钩子

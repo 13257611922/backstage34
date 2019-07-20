@@ -111,8 +111,20 @@ export const delusers = ({
 export const stateusers = ({
     uld,
     type
-})=>{
+}) => {
     return managerAxios.put(`users/${uld}/state/${type}`)
+}
+
+// 暴露接口 - 编辑用户提交
+export const compileusers = ({
+    id,
+    email,
+    mobile
+}) => {
+    return managerAxios.put(`users/${id}`,{
+        email,
+        mobile
+    })
 }
 
 // 暴露接口 - 所有权限列表
