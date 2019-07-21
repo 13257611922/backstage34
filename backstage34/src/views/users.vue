@@ -46,7 +46,7 @@
             icon="el-icon-edit"
             plain
             size="small"
-            @click="modificationBtn(scope.row)"
+            @click="modificationBtn(scope.row.id)"
           ></el-button>
           <!-- 删除按钮 -->
           <el-button
@@ -151,6 +151,7 @@ import {
   addusers,
   delusers,
   stateusers,
+  queryid,
   compileusers,
   rolesusers,
   ridusers
@@ -224,6 +225,7 @@ export default {
       }
     };
   },
+
   methods: {
     // 分配用户角色
     disRoles() {
@@ -277,12 +279,15 @@ export default {
     },
 
     // 编辑用户
-    modificationBtn(row) {
+    modificationBtn(id) {
       // 开启对话框
       this.comdialog = true;
-      // console.log(row);
+      // console.log(id);
       // 数据渲染
-      this.comform = row;
+      queryid({id}).then(backData=>{
+        // console.log(backData);
+        this.comform = backData.data.data
+      })
     },
 
     //删除用户

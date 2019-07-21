@@ -14,7 +14,7 @@ const managerAxios = axios.create({
 // 添加请求拦截器
 managerAxios.interceptors.request.use(function (config) {
     // 请求成功触发
-    console.log('请求成功');
+    // console.log('请求成功');
     // console.log(config);
     // 添加请求头
     // 添加token
@@ -28,7 +28,7 @@ managerAxios.interceptors.request.use(function (config) {
 // 添加响应拦截器
 managerAxios.interceptors.response.use(function (response) {
     // 响应成功触发
-    console.log('响应成功');
+    // console.log('响应成功');
     // console.log(response);
     // 伪造token
     if (response.data.meta.status == 400 && response.data.meta.msg == '无效token') {
@@ -113,6 +113,11 @@ export const stateusers = ({
     type
 }) => {
     return managerAxios.put(`users/${uld}/state/${type}`)
+}
+
+// 暴露接口 - 根据ID查询用户信息
+export const queryid = ({id})=>{
+    return managerAxios.get(`users/${id}`)
 }
 
 // 暴露接口 - 编辑用户提交
