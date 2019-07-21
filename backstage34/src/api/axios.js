@@ -146,3 +146,18 @@ export const ridusers = ({
 export const rights = () => {
     return managerAxios.get('rights/list')
 }
+
+// 暴露接口 - 商品列表数据
+export const goodslist = ({
+    query,
+    pagenum,
+    pagesize
+}) => {
+    return managerAxios.get('goods', {
+        params: {
+            query,
+            pagenum,
+            pagesize
+        }
+    })
+}

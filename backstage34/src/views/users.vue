@@ -150,7 +150,7 @@ import {
   users,
   addusers,
   delusers,
-  stateuser,
+  stateusers,
   compileusers,
   rolesusers,
   ridusers
@@ -351,14 +351,21 @@ export default {
       this.disdialog = true;
     },
 
-    // 开关事件
+    // 状态改变事件
     switchBtn(row) {
-      // console.log(row);
+      console.log(row);
       stateusers({
         uld: row.id,
         type: row.mg_state
       }).then(backData => {
         // console.log(backData);
+        if (backData.data.meta.status == 200) {
+          // 弹话框
+          this.$message({
+            message: "用户状态已改变",
+            type: "success"
+          });
+        }
       });
     },
 

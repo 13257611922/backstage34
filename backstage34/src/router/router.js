@@ -14,12 +14,17 @@ import error from '../components/error.vue'
 import users from '../views/users.vue'
 import roles from '../views/roles.vue'
 import rights from '../views/rights.vue'
-import goods from '../views/goods.vue'
 import params from '../views/params.vue'
 import categories from '../views/categories.vue'
 import orders from '../views/orders.vue'
 import reports from '../views/reports.vue'
 
+// goods 路由
+import goods from '../views/goods/goods'
+
+// goods 嵌套路由
+import goodsindex from '../views/goods/components/goodsindex.vue'
+import goodsadd from '../views/goods/components/goodsadd.vue'
 
 // 路由规则
 const routes = [{
@@ -59,7 +64,19 @@ const routes = [{
             },
             {
                 path: 'goods',
-                component: goods
+                component: goods,
+                // good 路由嵌套
+                children: [
+                    // 路由重定向
+                    {
+                        path: '',
+                        component: goodsindex
+                    },
+                    {
+                        path: 'add',
+                        component: goodsadd
+                    }
+                ]
             },
             {
                 path: 'params',
@@ -86,8 +103,8 @@ const routes = [{
     },
     // 兜底规则
     {
-        path:'*',
-        redirect:'/error'
+        path: '*',
+        redirect: '/error'
     }
 ]
 
