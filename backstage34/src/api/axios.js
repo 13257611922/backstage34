@@ -116,7 +116,9 @@ export const stateusers = ({
 }
 
 // 暴露接口 - 根据ID查询用户信息
-export const queryid = ({id})=>{
+export const queryid = ({
+    id
+}) => {
     return managerAxios.get(`users/${id}`)
 }
 
@@ -164,5 +166,25 @@ export const goodslist = ({
             pagenum,
             pagesize
         }
+    })
+}
+
+// 暴露接口 - 商品数据列表
+export const categories = ({
+    type
+}) => {
+    return managerAxios.get('categories', {
+        params: {
+            type
+        }
+    })
+}
+
+// 暴露接口 - 图片上传
+export const picupload = ({
+    file
+}) => {
+    return managerAxios.post('upload', {
+        file
     })
 }

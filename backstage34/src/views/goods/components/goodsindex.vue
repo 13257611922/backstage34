@@ -1,7 +1,7 @@
 <template>
-  <div class="index">
+  <div class="goodsindex">
     <!-- Layout 布局 -->
-    <el-col>
+    <el-col class="my-col">
       <el-col :span="6">
         <!-- 输入框 -->
         <el-input placeholder="请输入内容" v-model="query" class="input-with-select">
@@ -14,7 +14,7 @@
       </el-col>
     </el-col>
     <!-- table 表格 -->
-    <el-table :data="tableData" border style="width: 100%" class="my-table">
+    <el-table :data="tableData" border style="width: 100%">
       <el-table-column type="index" width="50"></el-table-column>
       <el-table-column prop="goods_name" label="商品名称"></el-table-column>
       <el-table-column prop="goods_price" label="商品价格(元)" width="150"></el-table-column>
@@ -28,17 +28,18 @@
       </el-table-column>
     </el-table>
     <!-- 分页 -->
-    <div class="block">
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="pagenum"
-        :page-sizes="[10 , 15 , 20 , 25]"
-        :page-size="5"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-      ></el-pagination>
-    </div>
+    <!-- <div class="block"> -->
+    <el-pagination
+      class="my-pagination"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pagenum"
+      :page-sizes="[10 , 15 , 20 , 25]"
+      :page-size="5"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total"
+    ></el-pagination>
+    <!-- </div> -->
   </div>
 </template>
 
@@ -110,10 +111,12 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.index {
-  // table 表格
-  .my-table {
-    // margin-top: 60px;
+.goodsindex {
+  .my-col {
+    margin-bottom: 10px;
+  }
+  .my-pagination {
+    margin-top: 20px;
   }
 }
 </style>
